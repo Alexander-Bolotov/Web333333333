@@ -25,30 +25,23 @@ public class MoneyTransactionServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HashMap<String, Object> pageVariables = new HashMap<>();
-
-        BankClient senderBankClient = new BankClient();
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String senderName = req.getParameter("senderName");
+        String senderPass = req.getParameter("senderPass");
+        Long count = Long.parseLong(req.getParameter("count"));
         String nameTo = req.getParameter("nameTo");
-        String count = req.getParameter("count");
-        String senderName = req.getParameter("SenderName");
-        String senderPass = req.getParameter("SenderPass");
-        senderBankClient.setName(senderName);
-        senderBankClient.setPassword(senderPass);
 
-        if (senderName != null && senderPass != null && nameTo != null && Long.parseLong(count) > 0L
-                && bankClientService.sendMoneyToClient(senderBankClient, nameTo,
-                Long.parseLong(count))) {
 
-            resp.setStatus(HttpServletResponse.SC_OK);
-            pageVariables.put("message", "The transaction was successful");
-
+        if (senderName == null || senderPass == null || nameTo == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
-            pageVariables.put("message", "transaction rejected");
-            resp.setStatus(HttpServletResponse.SC_OK);
-//                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            if (bankClientService.sendMoneyToClient(new BankClient(senderName, senderPass), nameTo, count)) {
+                resp.getWriter().println("The transaction was successful");
+                resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                resp.getWriter().println("transaction rejected");
+            }
         }
-        resp.setContentType("text/html;charset=utf-8");
-        resp.getWriter().println(PageGenerator.getInstance().getPage("resultPage.html", pageVariables));
     }
 }

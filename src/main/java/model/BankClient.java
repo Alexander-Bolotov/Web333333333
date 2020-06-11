@@ -26,6 +26,11 @@ public class BankClient {
         this.money = money;
     }
 
+    public BankClient(String senderName, String senderPass) {
+        this.name = senderName;
+        this.password = senderPass;
+    }
+
     public long getId() {
         return id;
     }

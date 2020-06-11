@@ -16,13 +16,7 @@ public class BankClientService {
     public BankClientService() {
     }
 
-    public BankClient getClientById(long id) throws DBException {
-        try {
-            return getBankClientDAO().getClientById(id);
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-    }
+
 
     public BankClient getClientByName(String name) {
         return getBankClientDAO().getClientByName(name);
@@ -32,14 +26,14 @@ public class BankClientService {
         return getBankClientDAO().getAllBankClient();
     }
 
-    public boolean deleteClient(String name) throws DBException {
-        try {
-            getBankClientDAO().deleteClient(getClientByName(name));
-            return true;
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-    }
+//    public boolean deleteClient(String name) throws DBException {
+//        try {
+//            getBankClientDAO().deleteClient(getClientByName(name));
+//            return true;
+//        } catch (SQLException e) {
+//            throw new DBException(e);
+//        }
+//    }
 
     public boolean addClient(BankClient client) {
         if (!dao.nameIsExist(client.getName())) {
@@ -49,23 +43,33 @@ public class BankClientService {
         return false;
     }
 
-    public boolean sendMoneyToClient(BankClient sender, String namePayee, Long value) {
-        sender = dao.getClientByName(sender.getName());
-        String nameSender = sender.getName();
+//    public boolean sendMoneyToClient(BankClient sender, String namePayee, Long value) {
+//        sender = dao.getClientByName(sender.getName());
+//        String nameSender = sender.getName();
+//
+//        BankClient clientPayee = dao.getClientByName(namePayee);
+//        String passwordPayee = clientPayee.getPassword();
+//
+//        if (dao.validateClient(nameSender, sender.getPassword()) &&
+//                dao.isClientHasSum(nameSender, value)) {
+//
+//            dao.updateClientsMoney(nameSender, sender.getPassword(), -value);
+//            dao.updateClientsMoney(namePayee, passwordPayee, value);
+//
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
-        BankClient clientPayee = dao.getClientByName(namePayee);
-        String passwordPayee = clientPayee.getPassword();
-
-        if (dao.validateClient(nameSender, sender.getPassword()) &&
-                dao.isClientHasSum(nameSender, value)) {
-
-            dao.updateClientsMoney(nameSender, sender.getPassword(), -value);
-            dao.updateClientsMoney(namePayee, passwordPayee, value);
-
+    public boolean sendMoneyToClient(BankClient sender, String name, Long value) {
+        if (dao.isClientHasSum(sender.getName(), value) && dao.validateClient(sender.getName(), sender.getPassword())) {
+            dao.updateClientsMoney(sender.getName(), sender.getPassword(), -value);
+            dao.updateClientsMoney(name, dao.getClientByName(name).getPassword(), value);
             return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     public void cleanUp() throws DBException {
@@ -94,11 +98,10 @@ public class BankClientService {
                     append("jdbc:mysql://").        //db type
                     append("localhost:").           //host name
                     append("3306/").                //port
-                    append("web3?").                //db name
-                    append("verifyServerCertificate=false&useSSL=true&requireSSL=true&").     //SSL OFF may be...
-                    append("user=root&").            //login
-                    append("password=sc323957vr&").         //password
-                    append("serverTimezone=UTC");   //setup server time
+                    append("db_example?").          //db name
+                    append("user=root&").           //login
+                    append("password=root").       //password
+                    append("&serverTimezone=UTC");
 
             System.out.println("URL: " + url + "\n");
 
